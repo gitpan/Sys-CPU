@@ -28,30 +28,8 @@
 
 #ifdef __linux__
 
-char *proc_cpuinfo_field (const char *field)
-    /* Return string from a field of /proc/cpuinfo, NULL if not found */
-    /* Comparison is case insensitive */
-{
-    FILE *fp;
-    static char line[1000];
-    int len = strlen(field);
-    char *result = NULL;
-    if (NULL!=(fp = fopen ("/proc/cpuinfo", "r"))) {
-	while (!feof(fp) && result==NULL) {
-	    fgets (line, 990, fp);
-	    if (0==strncasecmp (field, line, len)) {
-		char *loc = strchr (line, ':');
-		if (loc) {
-		    result = loc+2;
-		    loc = strchr (result, '\n');
-		    if (loc) *loc = '\0';
-		}
-	    }
-	}
-	fclose(fp);
-    }
-    return (result);
-}
+#define _have_cpu_type
+#define _have_cpu_clock
 
 /* Return string from a field of /proc/cpuinfo, NULL if not found */
 /* Comparison is case insensitive */
@@ -134,7 +112,6 @@ CODE:
 #ifdef __linux__
     int value = proc_cpuinfo_clock();
     if (value) clock = value;
-    #define _have_cpu_clock
 #endif                        
 #if defined(_WIN32) 
     /*!! untested !!*/
@@ -167,7 +144,6 @@ CODE:
     --cpu_num;
 	value = proc_cpuinfo_field ("model name");
 	if (!value) value = proc_cpuinfo_field ("machine");
-    #define _have_cpu_type
 #endif
 #if defined(_WIN32)
     --cpu_num;                                  
