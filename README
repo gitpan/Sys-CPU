@@ -1,0 +1,52 @@
+NAME
+    Sys::CPU - Perl extension for getting CPU information. Currently only
+    number of CPU's supported.
+
+SYNOPSIS
+      use Sys::CPU;
+  
+      $number_of_cpus = Sys::CPU::cpu_count();
+      printf("I have %d CPU's\n",$number_of_cpus);
+      print "  Speed : ",Sys::CPU::cpu_clock(),"\n";
+      print "  Type  : ",Sys::CPU::cpu_type(),"\n";
+
+DESCRIPTION
+    In responce to a post on perlmonks.org, a module for counting the number
+    of CPU's on a system. Support has now also been added for type of CPU
+    and clock speed. While much of the code is from UNIX::Processors, win32
+    support has been added (but not tested).
+
+  EXPORT
+
+    None by default.
+
+AUTHOR
+    MZSanford
+
+SEE ALSO
+    perl(1), sysconf(3)
+
+CHANGES
+
+Revision history for Perl extension Sys::CPU.
+
+0.01  Wed Jun 27 16:43:58 2001
+	- original version; created by h2xs 1.20 with options -A -n Sys::CPU
+
+0.10
+        - Added cpu_type and cpu_clock functions
+        - Changed to better win32 suppport (untested)
+
+0.20
+        - Fixed linux support
+
+0.25
+        - Fixed dist tar problem
+                
+0.30
+        - Fixed win32 support to work with Windows 2000 (thanks Gary)
+        - Changed interface to eliminate cpu numbers
+        - improved info printed during tests
+
+0.35
+        - Fixed linux support (thanks Peter)

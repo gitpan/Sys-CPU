@@ -14,4 +14,8 @@ Revision history for Perl extension Sys::CPU.
         - Fixed dist tar problem
                 
 0.30
-        - Fixed win32 supprot to work with Windows 2000
+        - Fixed win32 supprot to work with Windows 2000 (thanks Gary)
+        - Changed interface to eliminate cpu numbers
+
+0.35
+        - Fixed linux support (thanks Peter)

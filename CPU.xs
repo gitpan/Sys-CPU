@@ -153,7 +153,6 @@ CODE:
 {
     int clock = 0;
     int retcode = 0;
-    char *value = malloc(MAX_IDENT_SIZE);
 #ifdef __linux__
     int value = proc_cpuinfo_clock();
     if (value) clock = value;
