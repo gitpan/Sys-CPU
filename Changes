@@ -7,3 +7,8 @@ Revision history for Perl extension Sys::CPU.
         - Added cpu_type and cpu_clock functions
         - Changed to better win32 suppport (untested)
 
+0.20
+		- Fixed linux support
+
+0.25
+		- Fixed dist tar problem
