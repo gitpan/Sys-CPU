@@ -12,14 +12,26 @@ use Sys::CPU;
 $loaded = 1;
 print "ok 1\n";
 
-$number = Sys::CPU::cpu_count();
-print "ok 2 ($number)\n";
+$number = &Sys::CPU::cpu_count();
+if (defined($number)) {
+    print "ok 2 (CPU Count : $number)\n";
+} else {
+    print "not ok 2 (cpu_count failed)\n";
+}
 
-$speed = Sys::CPU::cpu_clock($number);
-print "ok 3 ($speed)\n";
+$speed = &Sys::CPU::cpu_clock();
+if (defined($speed)) {
+    print "ok 3 (CPU Speed :$speed)\n";
+} else {
+    print "not ok 3 (cpu_clock undefined (ok if Win9x))\n";
+}
 
-$type = Sys::CPU::cpu_type($number);
-print "ok 4 ($type)\n";
+$type = &Sys::CPU::cpu_type();
+if (defined($type)) {
+    print "ok 4 (CPU Type  : $type)\n";
+} else {
+    print "not ok 5 (cpu_type unavailable)\n";
+}
 
 ######################### End of black magic.
 

@@ -10,17 +10,61 @@
 *                                                                                     *
 **************************************************************************************/
 
-#if defined(_WIN32)  /* WINDOWS */
-#include <stdlib.h>
-#include <windows.h>                                  
-#include <winbase.h>
+#define MAX_IDENT_SIZE 256
+#if defined(_WIN32) || defined(WIN32) 
+  #define _have_cpu_type
+  #define _have_cpu_clock
+  #define WINDOWS
+#endif
+
+#ifdef WINDOWS /* WINDOWS */
+ #include <stdlib.h>
+ #include <windows.h>                                  
+ #include <winbase.h>
+ #include <winreg.h>
 #else                /* other (try unix) */
-#include <unistd.h>
-#include <sys/unistd.h>
+ #include <unistd.h>
+ #include <sys/unistd.h>
 #endif
 #ifdef __sun__
-#include <sys/processor.h>
+ #include <sys/processor.h>
 #endif
+
+
+#ifdef WINDOWS
+/* Registry Functions */
+
+int GetSysInfoKey(char *key_name,char *output) {
+	// Get values from registry, use REGEDIT to see how data is stored while sample is running
+	int ret;
+	HKEY hTestKey, hSubKey;
+	DWORD dwRegType, dwBuffSize;
+	 
+	// Access using preferred 'Ex' functions
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Hardware\\Description\\System\\CentralProcessor", 0, KEY_READ,  &hTestKey) == ERROR_SUCCESS) {
+		if (RegOpenKey(hTestKey, "0",  &hSubKey) == ERROR_SUCCESS) {
+			dwBuffSize = MAX_IDENT_SIZE;
+			ret = RegQueryValueEx(hSubKey, key_name, NULL,  &dwRegType,  output,  &dwBuffSize);
+			if (ret != ERROR_SUCCESS) {
+				sprintf(output,"Failed to get Value for key : %d\n",GetLastError());
+				return(1);
+			}
+			RegCloseKey(hSubKey);
+		} else {
+			sprintf(output,"Failed to open sub-key : %d\n",GetLastError());
+			return(1);
+		}		 
+		RegCloseKey(hTestKey);
+	}
+	else 
+	{
+		sprintf(output,"Failed to open test key : %d\n",GetLastError());
+		return(1);
+	}
+	return(0);
+}
+
+#endif /* WINDOWS */
 
 /* the following few functions were shamlessly taken from UNIX::Processors *
  * to make this linux compatable. No linux machine to test on, so had to   *
@@ -74,89 +118,91 @@ int get_cpu_count() {
     char buffer[255];
     char *p = buffer;
 
-#if defined(_WIN32) /* WINDOWS */
-/******************************************
-*     p = getenv("NUMBER_OF_PROCESSORS"); *
-*     if (p == NULL) {                    *
-*         ret = 1;                        *
-*     } else {                            *
-*         ret = atoi(p);                  *
-*     }                                   *
-******************************************/                                  
+#ifdef WINDOWS /* WINDOWS */                                  
    SYSTEM_INFO info;                                                         
                                                        
    GetSystemInfo(&info);                              
    ret = info.dwNumberOfProcessors;                  
 #else               /*other (try *nix)*/
     ret = (int )sysconf(_SC_NPROCESSORS_ONLN);
-#endif
+#endif  /* WINDOWS */
     return ret;
 }
+
 
 MODULE = Sys::CPU		PACKAGE = Sys::CPU		
 
 int
 cpu_count()
-    CODE:
-      RETVAL = get_cpu_count();
-    OUTPUT:
-      RETVAL
+CODE:
+{
+    int i = 0;
+    i = get_cpu_count();
+    if (i) {
+	    ST(0) = sv_newmortal();
+	    sv_setiv (ST(0), i);
+    } else {
+	    ST(0) = &PL_sv_undef;
+    }   
+}
 
 
 int
-cpu_clock(cpu_num)
-int cpu_num;
+cpu_clock()
 CODE:
 {
     int clock = 0;
+    int retcode = 0;
+    char *value = malloc(MAX_IDENT_SIZE);
 #ifdef __linux__
     int value = proc_cpuinfo_clock();
     if (value) clock = value;
-#endif                        
-#if defined(_WIN32) 
-    /*!! untested !!*/
-    /* http://mindcracker.com/mindcracker/c_cafe/winapi/cpu.asp */
-    /*  Get from Registry at HKEY_LOCAL_MACHINE\HARDWARE\DESCRIPTION\SYSTEM\CentralProcessor */
-    /*  using the key ~MHz */
-    clock = 0;
-    #define _have_cpu_clock
 #endif
-#ifndef _have_cpu_clock /* not linux, not windows */
+#ifdef WINDOWS
+    char *clock_str = malloc(MAX_IDENT_SIZE); 
+    /*!! untested !!*/
+    retcode = GetSysInfoKey("~MHz",clock_str);
+    if (retcode != 0) {
+        clock = 0;
+    } else {
+        clock = atoi(clock_str);
+    }     
+#endif /* not linux, not windows */
+#ifndef _have_cpu_clock
     processor_info_t info, *infop=&info;
-    --cpu_num;
-    if ( processor_info(cpu_num, infop) == 0 && infop->pi_state == P_ONLINE) {
+    if ( processor_info(0, infop) == 0 && infop->pi_state == P_ONLINE) {
         if (clock < infop->pi_clock) {
             clock = infop->pi_clock;
         }
     }
 #endif
-    RETVAL = clock;
+    if (clock) {
+	    ST(0) = sv_newmortal();
+	    sv_setiv (ST(0), clock);
+    } else {
+	    ST(0) = &PL_sv_undef;
+    }   
 }
-OUTPUT: RETVAL
 
 SV *
-cpu_type(cpu_num)
-int cpu_num
+cpu_type()
 CODE:
 {
-    char *value = NULL;
+    char *value = malloc(MAX_IDENT_SIZE);
+    int retcode = 0;
 #ifdef __linux__
-    --cpu_num;
-	value = proc_cpuinfo_field ("model name");
-	if (!value) value = proc_cpuinfo_field ("machine");
+    value = proc_cpuinfo_field ("model name");
+    if (!value) value = proc_cpuinfo_field ("machine");
 #endif
-#if defined(_WIN32)
-    --cpu_num;                                  
-    SYSTEM_INFO info;                                
-                                                                               
-    GetSystemInfo(&info);                               
-    RETVAL = info.dwProcessorType;
-    #define _have_cpu_type
-#endif
-#ifndef _have_cpu_type /* not linux, not windows */
+#ifdef WINDOWS
+    retcode = GetSysInfoKey("Identifier",value);
+    if (retcode != 0) {
+        value = NULL;
+    }                                                                           
+#endif 
+#ifndef _have_cpu_type  /* not linux, not windows */
     processor_info_t info, *infop=&info;
-    --cpu_num;
-    if (processor_info (cpu_num, infop)==0) {
+    if (processor_info (0, infop)==0) {
 	value = infop->pi_processor_type;
     }
 #endif

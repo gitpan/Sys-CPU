@@ -19,7 +19,7 @@ our %EXPORT_TAGS = ( 'all' => [ qw(
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
-our $VERSION = '0.25';
+our $VERSION = '0.30';
 
 bootstrap Sys::CPU $VERSION;
 
@@ -39,12 +39,8 @@ Sys::CPU - Perl extension for getting CPU information. Currently only number of 
   
   $number_of_cpus = Sys::CPU::cpu_count();
   printf("I have %d CPU's\n",$number_of_cpus);
-  
-  for (1..$number_of_cpus) {
-      print "CPU $_\n";
-      print "  Speed : ",Sys::CPU::cpu_clock($_);
-      print "  Type  : ",Sys::CPU::cpu_type($_);
-  }
+  print "  Speed : ",Sys::CPU::cpu_clock(),"\n";
+  print "  Type  : ",Sys::CPU::cpu_type(),"\n";
 
 =head1 DESCRIPTION
 
