@@ -6,7 +6,7 @@
 # Change 1..1 below to 1..last_test_to_print .
 # (It may become useful if the test is moved to ./t subdirectory.)
 
-BEGIN { $| = 1; print "1..2\n"; }
+BEGIN { $| = 1; print "1..4\n"; }
 END {print "not ok 1\n" unless $loaded;}
 use Sys::CPU;
 $loaded = 1;
@@ -14,6 +14,12 @@ print "ok 1\n";
 
 $number = Sys::CPU::cpu_count();
 print "ok 2 ($number)\n";
+
+$speed = Sys::CPU::cpu_clock($number);
+print "ok 3 ($speed)\n";
+
+$type = Sys::CPU::cpu_type($number);
+print "ok 4 ($type)\n";
 
 ######################### End of black magic.
 

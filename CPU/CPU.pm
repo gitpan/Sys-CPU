@@ -13,11 +13,13 @@ our @ISA = qw(Exporter DynaLoader);
 # will save memory.
 our %EXPORT_TAGS = ( 'all' => [ qw(
 	cpu_count
+        cpu_clock
+        cpu_type
 ) ] );
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
-our $VERSION = '0.01';
+our $VERSION = '0.10';
 
 bootstrap Sys::CPU $VERSION;
 
@@ -37,18 +39,22 @@ Sys::CPU - Perl extension for getting CPU information. Currently only number of 
   
   $number_of_cpus = Sys::CPU::cpu_count();
   printf("I have %d CPU's\n",$number_of_cpus);
+  
+  for (1..$number_of_cpus) {
+      print "CPU $_\n";
+      print "  Speed : ",Sys::CPU::cpu_clock($_);
+      print "  Type  : ",Sys::CPU::cpu_type($_);
+  }
 
 =head1 DESCRIPTION
 
 In responce toa post on perlmonks.org, a module for counting the number of CPU's on a 
-system. Will work to add support for CPU information. Windows support untested because
-i do not have an NT server with multiple CPU's
+system. Support has now also been added for type of CPU and clock speed. While much of the
+code is from UNIX::Processors, win32 support has been added (but not tested).
 
 =head2 EXPORT
 
 None by default.
-Tag all exports cpu_count currently
-
 
 =head1 AUTHOR
 
