@@ -1,0 +1,6 @@
+CPU.pm
+CPU.xs
+Changes
+MANIFEST
+Makefile.PL
+test.pl

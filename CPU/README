@@ -1,0 +1,26 @@
+NAME
+    Sys::CPU - Perl extension for getting CPU information. Currently only
+    number of CPU's supported.
+
+SYNOPSIS
+      use Sys::CPU;
+  
+      $number_of_cpus = Sys::CPU::cpu_count();
+      printf("I have %d CPU's\n",$number_of_cpus);
+
+DESCRIPTION
+    In responce toa post on perlmonks.org, a module for counting the number
+    of CPU's on a system. Will work to add support for CPU information.
+    Windows support untested because i do not have an NT server with
+    multiple CPU's
+
+  EXPORT
+
+    None by default. Tag all exports cpu_count currently
+
+AUTHOR
+    MZSanford
+
+SEE ALSO
+    perl(1), sysconf(3)
+
