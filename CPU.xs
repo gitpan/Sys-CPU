@@ -29,7 +29,12 @@
 #ifdef __sun__
  #include <sys/processor.h>
 #endif
-
+#ifdef _HPUX_SOURCE
+ #include <pthread.h>
+ #include <sys/pstat.h>
+ #define _have_cpu_clock
+ #define _have_cpu_type
+#endif
 
 #ifdef WINDOWS
 /* Registry Functions */
@@ -65,6 +70,81 @@ int GetSysInfoKey(char *key_name,char *output) {
 }
 
 #endif /* WINDOWS */
+
+#ifdef _HPUX_SOURCE
+
+/*
+ * HP specific function to return the clock-speed of a specified CPU in MHz.
+ */
+int proc_get_mhz(int id) {
+    struct pst_processor st;
+    int result = 0;
+    if( !(result = pstat_getprocessor(&st, sizeof(st), (size_t)1, id)) ) {
+
+        /* Maybe the CPU id too high, so try for CPU 0, instead. */
+        result = pstat_getprocessor(&st, sizeof(st), (size_t)1, 0);
+    }
+
+    if( result ) {
+        return st.psp_iticksperclktick * sysconf(_SC_CLK_TCK) / 1000000;
+    }
+
+    /* Call failed - return 0 for unknown clock speed. */
+    return 0;
+}
+
+/*
+ * Depending on your version of HP-UX, you may or may not already have these
+ * but we need them, so make sure that they are defined.
+ */
+#ifndef CPU_PA_RISC1_0
+#define CPU_PA_RISC1_0      0x20B    /* HP PA-RISC1.0 */
+#endif
+
+#ifndef CPU_PA_RISC1_1
+#define CPU_PA_RISC1_1      0x210    /* HP PA-RISC1.1 */
+#endif
+
+#ifndef CPU_PA_RISC1_2
+#define CPU_PA_RISC1_2      0x211    /* HP PA-RISC1.2 */
+#endif
+
+#ifndef CPU_PA_RISC2_0
+#define CPU_PA_RISC2_0      0x214    /* HP PA-RISC2.0 */
+#endif
+
+#ifndef CPU_PA_RISC_MAX
+#define CPU_PA_RISC_MAX     0x2FF    /* Maximum for HP PA-RISC systems. */
+#endif
+
+#ifndef CPU_IA64_ARCHREV_0
+#define CPU_IA64_ARCHREV_0  0x300    /* IA-64 archrev 0 */
+#endif
+
+const char *proc_get_type_name () {
+    long cpuvers = sysconf(_SC_CPU_VERSION);
+
+    switch(cpuvers) {
+        case CPU_PA_RISC1_0:
+            return "HP PA-RISC1.0";
+        case CPU_PA_RISC1_1:
+            return "HP PA-RISC1.1";
+        case CPU_PA_RISC1_2:
+            return "HP PA-RISC1.2";
+        case CPU_PA_RISC2_0:
+            return "HP PA-RISC2.0";
+        case CPU_IA64_ARCHREV_0:
+            return "IA-64 archrev 0";
+        default:
+            if( CPU_IS_PA_RISC(cpuvers) ) {
+	        return "HP PA-RISC";
+	    }
+    }
+
+    return "UNKNOWN HP-UX";
+}
+
+#endif /* _HPUX_SOURCE */
 
 /* the following few functions were shamlessly taken from UNIX::Processors *
  * to make this linux compatable. No linux machine to test on, so had to   *
@@ -124,7 +204,11 @@ int get_cpu_count() {
    GetSystemInfo(&info);                              
    ret = info.dwNumberOfProcessors;                  
 #else               /*other (try *nix)*/
+#ifdef _HPUX_SOURCE /* HP-UX */
+    ret = pthread_num_processors_np();
+#else               /*other unix - try sysconf*/
     ret = (int )sysconf(_SC_NPROCESSORS_ONLN);
+#endif  /* HP-UX */
 #endif  /* WINDOWS */
     return ret;
 }
@@ -166,7 +250,11 @@ CODE:
     } else {
         clock = atoi(clock_str);
     }     
-#endif /* not linux, not windows */
+#endif /* not linux, not windows, not hpux */
+#ifdef _HPUX_SOURCE
+    /* Try to get the clock speed for processor 0 - assume all the same. */
+    clock = proc_get_mhz(0);
+#endif
 #ifndef _have_cpu_clock
     processor_info_t info, *infop=&info;
     if ( processor_info(0, infop) == 0 && infop->pi_state == P_ONLINE) {
@@ -199,6 +287,9 @@ CODE:
         value = NULL;
     }                                                                           
 #endif 
+#ifdef _HPUX_SOURCE
+    value = proc_get_type_name();
+#endif
 #ifndef _have_cpu_type  /* not linux, not windows */
     processor_info_t info, *infop=&info;
     if (processor_info (0, infop)==0) {
@@ -212,4 +303,5 @@ CODE:
 	    ST(0) = &PL_sv_undef;
     }
 }
+
 

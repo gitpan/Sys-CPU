@@ -19,3 +19,6 @@ Revision history for Perl extension Sys::CPU.
 
 0.35
         - Fixed linux support (thanks Peter)
+
+0.40
+        - Fixed HP-UX support (thanks Brett Gersekowski)
