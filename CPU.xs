@@ -26,7 +26,7 @@
  #include <unistd.h>
  #include <sys/unistd.h>
 #endif
-#ifdef __sun__
+#if defined(__sun) || defined(__sun__)
  #include <sys/processor.h>
 #endif
 #ifdef _HPUX_SOURCE
