@@ -26,7 +26,7 @@
  #include <unistd.h>
  #include <sys/unistd.h>
 #endif
-#if defined(__sun) || defined(__sun__)
+#if defined(__sun) || defined(__sun__) 
  #include <sys/processor.h>
 #endif
 #ifdef _HPUX_SOURCE
@@ -35,7 +35,11 @@
  #define _have_cpu_clock
  #define _have_cpu_type
 #endif
-
+#ifdef __APPLE__
+ #include <sys/sysctl.h>
+ #define _have_cpu_clock
+ #define _have_cpu_type
+#endif
 #ifdef WINDOWS
 /* Registry Functions */
 
@@ -146,6 +150,80 @@ const char *proc_get_type_name () {
 
 #endif /* _HPUX_SOURCE */
 
+#ifdef __APPLE__
+
+#ifndef POWERPC_G3
+#define POWERPC_G3 0xcee41549
+#endif
+
+#ifndef POWERPC_G4
+#define POWERPC_G4 0x77c184ae 
+#endif
+
+#ifndef POWERPC_G5
+#define POWERPC_G5 0xed76d8aa
+#endif
+
+#ifndef INTEL_6_13 
+#define INTEL_6_13 0xaa33392b 
+#endif 
+#ifndef ARM_9 
+#define ARM_9 0xe73283ae 
+#endif
+
+#ifndef ARM_11 
+#define ARM_11 0x8ff620d8 
+#endif
+
+#ifndef INTEL_PENRYN 
+#define INTEL_PENRYN 0x78ea4fbc 
+#endif
+
+#ifndef INTEL_NEHALEM 
+#define INTEL_NEHALEM 0x6b5a4cd2 
+#endif
+
+#ifndef INTEL_CORE 
+#define INTEL_CORE 0x73d67300 
+#endif
+
+#ifndef INTEL_CORE2 
+#define INTEL_CORE2 0x426f69ef 
+#endif
+
+char *apple_get_type_name() {
+        int mib[2];
+        size_t len=2;
+	int kp;
+        sysctlnametomib ("hw.cpufamily", mib, &len);
+	sysctl(mib, 2, NULL, &len, NULL, 0);
+        sysctl(mib, 2, &kp, &len, NULL, 0);
+   	switch (kp) {
+                case POWERPC_G3:            
+                   return "POWERPC_G3";
+                case POWERPC_G4:
+                   return "POWERPC_G4";
+                case POWERPC_G5:
+                   return "POWERPC_G5";
+                case INTEL_6_13:
+                   return "INTEL_6_13";
+                case ARM_9:
+                   return "ARM_9";
+                case ARM_11:
+                   return "ARM_11";
+                case INTEL_PENRYN:
+                   return "INTEL_PENRYN";                
+                case INTEL_NEHALEM:
+                   return "INTEL_NEHALEM";               
+                case INTEL_CORE:
+                   return "INTEL_CORE";
+                case INTEL_CORE2:
+                   return "INTEL_CORE2";
+		default:
+                    return "UNKNOWN"; 
+        }
+}
+#endif /* __APPLE__ */
 /* the following few functions were shamlessly taken from UNIX::Processors *
  * to make this linux compatable. No linux machine to test on, so had to   *
  * use existing code                                                       */
@@ -212,8 +290,6 @@ int get_cpu_count() {
 #endif  /* WINDOWS */
     return ret;
 }
-
-
 MODULE = Sys::CPU		PACKAGE = Sys::CPU		
 
 int
@@ -255,6 +331,9 @@ CODE:
     /* Try to get the clock speed for processor 0 - assume all the same. */
     clock = proc_get_mhz(0);
 #endif
+#ifdef __APPLE__
+    clock = CurrentProcessorSpeed();
+#endif
 #ifndef _have_cpu_clock
     processor_info_t info, *infop=&info;
     if ( processor_info(0, infop) == 0 && infop->pi_state == P_ONLINE) {
@@ -289,6 +368,9 @@ CODE:
 #endif 
 #ifdef _HPUX_SOURCE
     value = proc_get_type_name();
+#endif
+#ifdef __APPLE__
+    value = apple_get_type_name();
 #endif
 #ifndef _have_cpu_type  /* not linux, not windows */
     processor_info_t info, *infop=&info;

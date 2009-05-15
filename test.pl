@@ -21,7 +21,7 @@ if (defined($number)) {
 
 $speed = &Sys::CPU::cpu_clock();
 if (defined($speed)) {
-    print "ok 3 (CPU Speed :$speed)\n";
+    print "ok 3 (CPU Speed : $speed)\n";
 } else {
     print "not ok 3 (cpu_clock undefined (ok if Win9x))\n";
 }
