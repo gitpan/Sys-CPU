@@ -29,3 +29,5 @@ Revision history for Perl extension Sys::CPU.
 0.50
         - Fixed Darwin/Mac Os support (Marc Koderer)
 
+0.51
+	- Fixed hidden mac os files

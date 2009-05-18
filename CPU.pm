@@ -19,7 +19,7 @@ our %EXPORT_TAGS = ( 'all' => [ qw(
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
-our $VERSION = '0.50';
+our $VERSION = '0.51';
 
 bootstrap Sys::CPU $VERSION;
 
