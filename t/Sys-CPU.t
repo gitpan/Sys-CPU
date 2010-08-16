@@ -22,7 +22,9 @@ if (defined($number)) {
 $speed = &Sys::CPU::cpu_clock();
 if (defined($speed)) {
     print "ok 3 (CPU Speed : $speed)\n";
-} else {
+} elsif ( $^O eq 'MSWin32'){
+    print "ok 3 (CPU Speed: test skipped on MSWin32)\n";
+} else  {
     print "not ok 3 (cpu_clock undefined (ok if Win9x))\n";
 }
 

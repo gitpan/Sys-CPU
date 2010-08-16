@@ -1,3 +1,10 @@
+Sys::CPU is Copyright (c) 2001-2010, MZSanford
+
+This module is free software; you
+can redistribute it and/or modify it under the same terms
+as Perl itself. For more details, see the full text of the
+licenses in the directory LICENSES.
+
 NAME
     Sys::CPU - Perl extension for getting CPU information. Currently only
     number of CPU's supported.
@@ -22,6 +29,9 @@ DESCRIPTION
 
 AUTHOR
     MZSanford
+MAINTENANCE
+    Marc Koderer
+
 
 SEE ALSO
     perl(1), sysconf(3)
@@ -44,9 +54,8 @@ Revision history for Perl extension Sys::CPU.
         - Fixed dist tar problem
                 
 0.30
-        - Fixed win32 support to work with Windows 2000 (thanks Gary)
+        - Fixed win32 supprot to work with Windows 2000 (thanks Gary)
         - Changed interface to eliminate cpu numbers
-        - improved info printed during tests
 
 0.35
         - Fixed linux support (thanks Peter)
@@ -54,7 +63,15 @@ Revision history for Perl extension Sys::CPU.
 0.40
         - Fixed HP-UX support (thanks Brett Gersekowski)
 
-0.45    - Fixed Solaris support
+0.45
+        - Fixed Solaris support
 
 0.50
-	- Fixed Darwin/Mac Os support (Marc Koderer)
+        - Fixed Darwin/Mac Os support (Marc Koderer)
+
+0.51
+	- Fixed hidden mac os files
+
+0.52
+	- fixed bug 50933 and 25253
+        - Added licence info (Fedora bug 585336)

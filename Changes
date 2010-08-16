@@ -31,3 +31,7 @@ Revision history for Perl extension Sys::CPU.
 
 0.51
 	- Fixed hidden mac os files
+
+0.52
+	- fixed bug 50933 and 25253
+        - added licence info (Fedora bug 585336)
