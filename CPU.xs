@@ -269,6 +269,21 @@ int proc_cpuinfo_clock (void) {
     return (0);
 }
 
+#ifdef __s390__ || __s390x__
+
+/* Return machine value from s390 processor line, NULL if not found */
+char *processor_machine_field (char *processor) {
+    char *machine = NULL;
+    if (NULL == processor) {
+      return NULL;
+    }
+    if (NULL != (machine = strstr(processor, "machine = "))) {
+      machine += 10;
+    }
+    return machine;
+}
+#endif
+
 #endif
 
 int get_cpu_count() {
@@ -354,11 +369,15 @@ SV *
 cpu_type()
 CODE:
 {
-    char *value = malloc(MAX_IDENT_SIZE);
+    char *value = NULL;
     int retcode = 0;
 #ifdef __linux__
-    value = proc_cpuinfo_field ("model name");
+#ifdef __s390__ || __s390x__
+    value = processor_machine_field (proc_cpuinfo_field ("processor") );
+#endif
+    if (!value) value = proc_cpuinfo_field ("model name");
     if (!value) value = proc_cpuinfo_field ("machine");
+    if (!value) value = proc_cpuinfo_field ("vendor_id");
 #endif
 #ifdef WINDOWS
     retcode = GetSysInfoKey("Identifier",value);
