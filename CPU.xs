@@ -11,7 +11,7 @@
 **************************************************************************************/
 
 #define MAX_IDENT_SIZE 256
-#if defined(_WIN32) || defined(WIN32) 
+#if defined(_WIN32) || defined(WIN32)
   #define _have_cpu_type
   #define _have_cpu_clock
   #define WINDOWS
@@ -19,14 +19,14 @@
 
 #ifdef WINDOWS /* WINDOWS */
  #include <stdlib.h>
- #include <windows.h>                                  
+ #include <windows.h>
  #include <winbase.h>
  #include <winreg.h>
 #else                /* other (try unix) */
  #include <unistd.h>
  #include <sys/unistd.h>
 #endif
-#if defined(__sun) || defined(__sun__) 
+#if defined(__sun) || defined(__sun__)
  #include <sys/processor.h>
 #endif
 #ifdef _HPUX_SOURCE
@@ -44,33 +44,33 @@
 /* Registry Functions */
 
 int GetSysInfoKey(char *key_name,char *output) {
-	// Get values from registry, use REGEDIT to see how data is stored while sample is running
-	int ret;
-	HKEY hTestKey, hSubKey;
-	DWORD dwRegType, dwBuffSize;
-	 
-	// Access using preferred 'Ex' functions
-	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Hardware\\Description\\System\\CentralProcessor", 0, KEY_READ,  &hTestKey) == ERROR_SUCCESS) {
-		if (RegOpenKey(hTestKey, "0",  &hSubKey) == ERROR_SUCCESS) {
-			dwBuffSize = MAX_IDENT_SIZE;
-			ret = RegQueryValueEx(hSubKey, key_name, NULL,  &dwRegType,  output,  &dwBuffSize);
-			if (ret != ERROR_SUCCESS) {
-				sprintf(output,"Failed to get Value for key : %d\n",GetLastError());
-				return(1);
-			}
-			RegCloseKey(hSubKey);
-		} else {
-			sprintf(output,"Failed to open sub-key : %d\n",GetLastError());
-			return(1);
-		}		 
-		RegCloseKey(hTestKey);
-	}
-	else 
-	{
-		sprintf(output,"Failed to open test key : %d\n",GetLastError());
-		return(1);
-	}
-	return(0);
+  // Get values from registry, use REGEDIT to see how data is stored while sample is running
+  int ret;
+  HKEY hTestKey, hSubKey;
+  DWORD dwRegType, dwBuffSize;
+
+  // Access using preferred 'Ex' functions
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Hardware\\Description\\System\\CentralProcessor", 0, KEY_READ,  &hTestKey) == ERROR_SUCCESS) {
+    if (RegOpenKey(hTestKey, "0",  &hSubKey) == ERROR_SUCCESS) {
+      dwBuffSize = MAX_IDENT_SIZE;
+      ret = RegQueryValueEx(hSubKey, key_name, NULL,  &dwRegType,  output,  &dwBuffSize);
+      if (ret != ERROR_SUCCESS) {
+        sprintf(output,"Failed to get Value for key : %d\n",GetLastError());
+        return(1);
+      }
+      RegCloseKey(hSubKey);
+    } else {
+      sprintf(output,"Failed to open sub-key : %d\n",GetLastError());
+      return(1);
+    }
+    RegCloseKey(hTestKey);
+  }
+  else
+  {
+    sprintf(output,"Failed to open test key : %d\n",GetLastError());
+    return(1);
+  }
+  return(0);
 }
 
 #endif /* WINDOWS */
@@ -141,8 +141,8 @@ const char *proc_get_type_name () {
             return "IA-64 archrev 0";
         default:
             if( CPU_IS_PA_RISC(cpuvers) ) {
-	        return "HP PA-RISC";
-	    }
+          return "HP PA-RISC";
+      }
     }
 
     return "UNKNOWN HP-UX";
@@ -157,49 +157,49 @@ const char *proc_get_type_name () {
 #endif
 
 #ifndef POWERPC_G4
-#define POWERPC_G4 0x77c184ae 
+#define POWERPC_G4 0x77c184ae
 #endif
 
 #ifndef POWERPC_G5
 #define POWERPC_G5 0xed76d8aa
 #endif
 
-#ifndef INTEL_6_13 
-#define INTEL_6_13 0xaa33392b 
-#endif 
-#ifndef ARM_9 
-#define ARM_9 0xe73283ae 
+#ifndef INTEL_6_13
+#define INTEL_6_13 0xaa33392b
+#endif
+#ifndef ARM_9
+#define ARM_9 0xe73283ae
 #endif
 
-#ifndef ARM_11 
-#define ARM_11 0x8ff620d8 
+#ifndef ARM_11
+#define ARM_11 0x8ff620d8
 #endif
 
-#ifndef INTEL_PENRYN 
-#define INTEL_PENRYN 0x78ea4fbc 
+#ifndef INTEL_PENRYN
+#define INTEL_PENRYN 0x78ea4fbc
 #endif
 
-#ifndef INTEL_NEHALEM 
-#define INTEL_NEHALEM 0x6b5a4cd2 
+#ifndef INTEL_NEHALEM
+#define INTEL_NEHALEM 0x6b5a4cd2
 #endif
 
-#ifndef INTEL_CORE 
-#define INTEL_CORE 0x73d67300 
+#ifndef INTEL_CORE
+#define INTEL_CORE 0x73d67300
 #endif
 
-#ifndef INTEL_CORE2 
-#define INTEL_CORE2 0x426f69ef 
+#ifndef INTEL_CORE2
+#define INTEL_CORE2 0x426f69ef
 #endif
 
 char *apple_get_type_name() {
         int mib[2];
         size_t len=2;
-	int kp;
+  int kp;
         sysctlnametomib ("hw.cpufamily", mib, &len);
-	sysctl(mib, 2, NULL, &len, NULL, 0);
+  sysctl(mib, 2, NULL, &len, NULL, 0);
         sysctl(mib, 2, &kp, &len, NULL, 0);
-   	switch (kp) {
-                case POWERPC_G3:            
+    switch (kp) {
+                case POWERPC_G3:
                    return "POWERPC_G3";
                 case POWERPC_G4:
                    return "POWERPC_G4";
@@ -212,15 +212,15 @@ char *apple_get_type_name() {
                 case ARM_11:
                    return "ARM_11";
                 case INTEL_PENRYN:
-                   return "INTEL_PENRYN";                
+                   return "INTEL_PENRYN";
                 case INTEL_NEHALEM:
-                   return "INTEL_NEHALEM";               
+                   return "INTEL_NEHALEM";
                 case INTEL_CORE:
                    return "INTEL_CORE";
                 case INTEL_CORE2:
                    return "INTEL_CORE2";
-		default:
-                    return "UNKNOWN"; 
+    default:
+                    return "UNKNOWN";
         }
 }
 #endif /* __APPLE__ */
@@ -241,18 +241,18 @@ char *proc_cpuinfo_field (const char *field) {
     int len = strlen(field);
     char *result = NULL;
     if (NULL!=(fp = fopen ("/proc/cpuinfo", "r"))) {
-	while (!feof(fp) && result==NULL) {
-	    fgets (line, 990, fp);
-	    if (0==strncasecmp (field, line, len)) {
-		char *loc = strchr (line, ':');
-		if (loc) {
-		    result = loc+2;
-		    loc = strchr (result, '\n');
-		    if (loc) *loc = '\0';
-		}
-	    }
-	}
-	fclose(fp);
+      while (!feof(fp) && result==NULL) {
+        if (NULL == fgets (line, 990, fp) && !feof(fp)) break;
+        if (0==strncasecmp (field, line, len)) {
+          char *loc = strchr (line, ':');
+          if (loc) {
+            result = loc+2;
+            loc = strchr (result, '\n');
+            if (loc) *loc = '\0';
+          }
+        }
+      }
+      fclose(fp);
     }
     return (result);
 }
@@ -269,7 +269,7 @@ int proc_cpuinfo_clock (void) {
     return (0);
 }
 
-#ifdef __s390__ || __s390x__
+#if defined __s390__ || defined __s390x__
 
 /* Return machine value from s390 processor line, NULL if not found */
 char *processor_machine_field (char *processor) {
@@ -288,14 +288,12 @@ char *processor_machine_field (char *processor) {
 
 int get_cpu_count() {
     int ret;
-    char buffer[255];
-    char *p = buffer;
 
-#ifdef WINDOWS /* WINDOWS */                                  
-   SYSTEM_INFO info;                                                         
-                                                       
-   GetSystemInfo(&info);                              
-   ret = info.dwNumberOfProcessors;                  
+#ifdef WINDOWS /* WINDOWS */
+   SYSTEM_INFO info;
+
+   GetSystemInfo(&info);
+   ret = info.dwNumberOfProcessors;
 #else               /*other (try *nix)*/
 #ifdef _HPUX_SOURCE /* HP-UX */
     ret = pthread_num_processors_np();
@@ -305,7 +303,7 @@ int get_cpu_count() {
 #endif  /* WINDOWS */
     return ret;
 }
-MODULE = Sys::CPU		PACKAGE = Sys::CPU		
+MODULE = Sys::CPU   PACKAGE = Sys::CPU
 
 int
 cpu_count()
@@ -314,11 +312,11 @@ CODE:
     int i = 0;
     i = get_cpu_count();
     if (i) {
-	    ST(0) = sv_newmortal();
-	    sv_setiv (ST(0), i);
+      ST(0) = sv_newmortal();
+      sv_setiv (ST(0), i);
     } else {
-	    ST(0) = &PL_sv_undef;
-    }   
+      ST(0) = &PL_sv_undef;
+    }
 }
 
 
@@ -327,20 +325,18 @@ cpu_clock()
 CODE:
 {
     int clock = 0;
-    int retcode = 0;
 #ifdef __linux__
     int value = proc_cpuinfo_clock();
     if (value) clock = value;
 #endif
 #ifdef WINDOWS
-    char *clock_str = malloc(MAX_IDENT_SIZE); 
+    char *clock_str = malloc(MAX_IDENT_SIZE);
     /*!! untested !!*/
-    retcode = GetSysInfoKey("~MHz",clock_str);
-    if (retcode != 0) {
+    if (GetSysInfoKey("~MHz",clock_str)) {
         clock = 0;
     } else {
         clock = atoi(clock_str);
-    }     
+    }
 #endif /* not linux, not windows, not hpux */
 #ifdef _HPUX_SOURCE
     /* Try to get the clock speed for processor 0 - assume all the same. */
@@ -358,11 +354,11 @@ CODE:
     }
 #endif
     if (clock) {
-	    ST(0) = sv_newmortal();
-	    sv_setiv (ST(0), clock);
+      ST(0) = sv_newmortal();
+      sv_setiv (ST(0), clock);
     } else {
-	    ST(0) = &PL_sv_undef;
-    }   
+      ST(0) = &PL_sv_undef;
+    }
 }
 
 SV *
@@ -370,9 +366,8 @@ cpu_type()
 CODE:
 {
     char *value = NULL;
-    int retcode = 0;
 #ifdef __linux__
-#ifdef __s390__ || __s390x__
+#if defined __s390__ || defined __s390x__
     value = processor_machine_field (proc_cpuinfo_field ("processor") );
 #endif
     if (!value) value = proc_cpuinfo_field ("model name");
@@ -380,11 +375,10 @@ CODE:
     if (!value) value = proc_cpuinfo_field ("vendor_id");
 #endif
 #ifdef WINDOWS
-    retcode = GetSysInfoKey("Identifier",value);
-    if (retcode != 0) {
+    if (GetSysInfoKey("Identifier", value)) {
         value = NULL;
-    }                                                                           
-#endif 
+    }
+#endif
 #ifdef _HPUX_SOURCE
     value = proc_get_type_name();
 #endif
@@ -394,14 +388,14 @@ CODE:
 #ifndef _have_cpu_type  /* not linux, not windows */
     processor_info_t info, *infop=&info;
     if (processor_info (0, infop)==0) {
-	value = infop->pi_processor_type;
+  value = infop->pi_processor_type;
     }
 #endif
     if (value) {
-	    ST(0) = sv_newmortal();
-	    sv_setpv (ST(0), value);
+      ST(0) = sv_newmortal();
+      sv_setpv (ST(0), value);
     } else {
-	    ST(0) = &PL_sv_undef;
+      ST(0) = &PL_sv_undef;
     }
 }
 

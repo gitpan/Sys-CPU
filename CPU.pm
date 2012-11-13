@@ -19,7 +19,7 @@ our %EXPORT_TAGS = ( 'all' => [ qw(
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
-our $VERSION = '0.53';
+our $VERSION = '0.54';
 
 bootstrap Sys::CPU $VERSION;
 
@@ -56,7 +56,7 @@ None by default.
 
 =head1 AUTHOR
 
-MZSanford
+Matt Sanford
 
 =head1 MAINTENANCE
 
