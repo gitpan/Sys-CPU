@@ -19,7 +19,7 @@ our %EXPORT_TAGS = ( 'all' => [ qw(
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
-our $VERSION = '0.60';
+our $VERSION = '0.61';
 
 bootstrap Sys::CPU $VERSION;
 
@@ -51,6 +51,7 @@ code is from UNIX::Processors, win32 support has been added (but not tested).
 v0.45 - Corrected solaris support (Thanks Cloyce)
 
 v0.60 - Added FreeBSD support (Thanks Johan & SREZIC)
+v0.61 - Fix test numbering issue
 
 =head2 EXPORT
 

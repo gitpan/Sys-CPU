@@ -32,7 +32,7 @@ $type = &Sys::CPU::cpu_type();
 if (defined($type)) {
     print "ok 4 (CPU Type  : $type)\n";
 } else {
-    print "not ok 5 (cpu_type unavailable)\n";
+    print "not ok 4 (cpu_type unavailable)\n";
 }
 
 ######################### End of black magic.
