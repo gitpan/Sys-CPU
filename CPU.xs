@@ -40,6 +40,11 @@
  #define _have_cpu_clock
  #define _have_cpu_type
 #endif
+#ifdef __FreeBSD__
+ #include <sys/sysctl.h>
+ #define _have_cpu_type
+ #define _have_cpu_clock
+#endif
 #ifdef WINDOWS
 /* Registry Functions */
 
@@ -191,13 +196,18 @@ const char *proc_get_type_name () {
 #define INTEL_CORE2 0x426f69ef
 #endif
 
+#ifndef INTEL_COREI7
+#define INTEL_COREI7 0x5490B78C
+#endif
+
 char *apple_get_type_name() {
-        int mib[2];
-        size_t len=2;
+  int mib[2];
+  size_t len=2;
   int kp;
-        sysctlnametomib ("hw.cpufamily", mib, &len);
+
+  sysctlnametomib ("hw.cpufamily", mib, &len);
   sysctl(mib, 2, NULL, &len, NULL, 0);
-        sysctl(mib, 2, &kp, &len, NULL, 0);
+  sysctl(mib, 2, &kp, &len, NULL, 0);
     switch (kp) {
                 case POWERPC_G3:
                    return "POWERPC_G3";
@@ -219,8 +229,10 @@ char *apple_get_type_name() {
                    return "INTEL_CORE";
                 case INTEL_CORE2:
                    return "INTEL_CORE2";
+                case INTEL_COREI7:
+                   return "INTEL_COREI7";
     default:
-                    return "UNKNOWN";
+       return "UNKNOWN";
         }
 }
 #endif /* __APPLE__ */
@@ -329,6 +341,10 @@ CODE:
     int value = proc_cpuinfo_clock();
     if (value) clock = value;
 #endif
+#ifdef __FreeBSD__
+    size_t len = sizeof(clock);
+    sysctlbyname("hw.clockrate", &clock, &len, NULL, 0);
+#endif
 #ifdef WINDOWS
     char *clock_str = malloc(MAX_IDENT_SIZE);
     /*!! untested !!*/
@@ -343,7 +359,15 @@ CODE:
     clock = proc_get_mhz(0);
 #endif
 #ifdef __APPLE__
-    clock = CurrentProcessorSpeed();
+    int mib[2];
+    unsigned int freq;
+    size_t len;
+
+    mib[0] = CTL_HW;
+    mib[1] = HW_CPU_FREQ;
+    len = sizeof(freq);
+    sysctl(mib, 2, &freq, &len, NULL, 0);
+    clock = freq/1000000;
 #endif
 #ifndef _have_cpu_clock
     processor_info_t info, *infop=&info;
@@ -366,6 +390,10 @@ cpu_type()
 CODE:
 {
     char *value = NULL;
+#ifdef __FreeBSD__
+    size_t len = MAX_IDENT_SIZE;
+    sysctlbyname("hw.model", value, &len, NULL, 0);
+#endif
 #ifdef __linux__
 #if defined __s390__ || defined __s390x__
     value = processor_machine_field (proc_cpuinfo_field ("processor") );
